@@ -1,19 +1,25 @@
-def compute_bubble_score(df):
-    high_em_pct = round((df["Hybrid_EM"] > 1.5).mean() * 100, 0)
-    avg_peg = round(df["PEG"].mean(), 2)
-    avg_f = df["F_Score"].mean()
+def compute_panel_bubble(df, em_threshold, peg_threshold, min_share):
+    latest_year = df["Year"].max()
+    df_latest = df[df["Year"] == latest_year]
 
-    score = int(
-        0.4 * (high_em_pct / 100) * 100 +
-        0.3 * (avg_peg / 3) * 100 +
-        0.3 * ((9 - avg_f) / 9) * 100
+    high_em_share = (df_latest["Hybrid_EM"] > em_threshold).mean()
+    high_peg_share = (df_latest["PEG"] > peg_threshold).mean()
+    avg_f = df_latest["F_Score"].mean()
+
+    bubble_score = int(
+        100 * (
+            0.4 * high_em_share +
+            0.3 * high_peg_share +
+            0.3 * ((9 - avg_f) / 9)
+        )
     )
 
-    verdict = score >= 65
+    if bubble_score >= 70 and high_em_share >= min_share:
+        verdict = "🔴 Bubble Detected"
+    elif bubble_score >= 45:
+        verdict = "🟠 Bubble Building"
+    else:
+        verdict = "🟢 No Bubble"
 
-    metrics = {
-        "high_em_pct": high_em_pct,
-        "avg_peg": avg_peg
-    }
+    return verdict, bubble_score
 
-    return score, metrics, verdict
