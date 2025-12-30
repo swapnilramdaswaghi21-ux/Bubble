@@ -50,11 +50,12 @@ fig = backtest_performance(bt)
 
 if fig is None:
     st.info(
-        "Backtest results are unavailable or insufficient for visualization "
-        "for this industry."
+        "📉 Crash backtesting is unavailable for this industry "
+        "due to insufficient or incomplete historical data."
     )
 else:
     st.plotly_chart(fig, use_container_width=True)
+
 
 
 # ---------------- PORTFOLIO STRESS ----------------
