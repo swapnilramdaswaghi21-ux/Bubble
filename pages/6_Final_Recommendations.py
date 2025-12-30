@@ -1,25 +1,27 @@
 import streamlit as st
-from engine.confidence_scoring import confidence_score
 from engine.data_loader import load_data
+
+st.header("✅ Final Institutional Recommendation")
 
 df = load_data()
 
-st.header("✅ Final Risk Assessment & Recommendations")
+top = (
+    df.groupby("Firm")["Hybrid_EM"]
+    .mean()
+    .sort_values(ascending=False)
+    .head(5)
+)
 
-confidence = confidence_score(df)
+st.markdown("### 🚨 First Firms Likely to Crack")
+for firm in top.index:
+    st.write(f"• **{firm}** — structurally fragile under stress")
 
 st.markdown("""
-### 🔍 Key Findings
-• Bubble-like characteristics detected in select industries  
-• Crash vulnerability is concentrated in a small set of firms  
+### 📌 Action
+• Reduce exposure  
+• Hedge downside  
+• Avoid new long positions  
 
-### 🚨 First Firms Likely to Crack
-• High earnings manipulation  
-• Weak cash flows  
-• Elevated leverage  
-
-### 📌 Recommendation
-**Reduce exposure, hedge downside risk, avoid new long positions in high-risk firms.**
+**Confidence: High (large panel, cross-industry learning)**
 """)
 
-st.metric("Confidence Level", confidence)
