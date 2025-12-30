@@ -3,30 +3,13 @@ body {
     color: #e5e7eb;
 }
 
-.title {
-    font-size: 48px;
-    font-weight: 800;
+h1, h2, h3 {
     text-align: center;
-}
-
-.subtitle {
-    font-size: 18px;
-    text-align: center;
-    color: #9ca3af;
-    margin-bottom: 30px;
 }
 
 .verdict {
-    padding: 25px;
-    border-radius: 16px;
+    padding: 20px;
+    border-radius: 12px;
     font-size: 20px;
     margin-top: 20px;
-}
-
-.verdict.bad {
-    background: linear-gradient(135deg, #7f1d1d, #450a0a);
-}
-
-.verdict.good {
-    background: linear-gradient(135deg, #064e3b, #022c22);
 }
