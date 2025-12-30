@@ -1,0 +1,11 @@
+Firm,Industry,Year,Hybrid_EM,PEG,F_Score,Debt_Equity,CFO_Growth,Return
+LehmanBrothers,Banking,2006,2.1,2.4,4,31.0,-0.12,-0.45
+BearStearns,Banking,2006,1.9,2.1,5,28.0,-0.08,-0.38
+AIG,Insurance,2006,1.7,2.0,5,22.0,-0.05,-0.30
+Citigroup,Banking,2006,1.6,1.9,6,18.0,0.02,-0.22
+GoldmanSachs,Banking,2006,1.3,1.6,7,12.0,0.06,-0.08
+JPmorgan,Banking,2006,1.2,1.5,8,10.0,0.08,-0.04
+LehmanBrothers,Banking,2007,2.4,2.8,3,34.0,-0.20,-0.85
+BearStearns,Banking,2007,2.0,2.3,4,30.0,-0.15,-0.70
+AIG,Insurance,2007,1.9,2.2,4,26.0,-0.10,-0.55
+Citigroup,Banking,2007,1.8,2.1,5,22.0,-0.05,-0.40
