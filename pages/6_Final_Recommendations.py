@@ -1,27 +1,24 @@
 import streamlit as st
 from engine.data_loader import load_data
 
-st.header("✅ Final Institutional Recommendation")
+st.header("Final Risk Assessment")
 
 df = load_data()
 
-top = (
+rank = (
     df.groupby("Firm")["Hybrid_EM"]
     .mean()
     .sort_values(ascending=False)
-    .head(5)
 )
 
-st.markdown("### 🚨 First Firms Likely to Crack")
-for firm in top.index:
-    st.write(f"• **{firm}** — structurally fragile under stress")
+st.subheader("Firms Most Vulnerable in a Crash")
 
-st.markdown("""
-### 📌 Action
-• Reduce exposure  
-• Hedge downside  
-• Avoid new long positions  
+for firm in rank.head(5).index:
+    st.write(firm)
 
-**Confidence: High (large panel, cross-industry learning)**
-""")
+st.subheader("Recommended Actions")
+
+st.write("Reduce exposure to top ranked firms.")
+st.write("Increase hedging in high risk industries.")
+st.write("Avoid new investments in late cycle sectors.")
 
