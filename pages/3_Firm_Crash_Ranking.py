@@ -9,8 +9,8 @@ from engine.recommendation_engine import recommend
 st.header("Firm Crash Risk Ranking")
 
 st.write(
-    "This page ranks firms within an industry by their likelihood "
-    "of failing first during a market crash or bubble unwind."
+    "Graphs use multi-year panel data to show broad risk patterns. "
+    "The final prediction is based on the most recent year only."
 )
 
 # ---------------- LOAD DATA ----------------
@@ -28,102 +28,114 @@ industry = st.selectbox(
 df_i = df[df["Industry"] == industry]
 
 # ---------------- FEATURE ENGINEERING ----------------
-X = build_features(df_i)
+X_all = build_features(df_i)
 
-# ---------------- TRAIN MODEL (SAFE) ----------------
-model = train_model(df_i, X)
+# ---------------- TRAIN MODEL ----------------
+model = train_model(df_i, X_all)
 
-# ---------------- USE LATEST YEAR ----------------
-latest_year = df_i["Year"].max()
-latest = df_i[df_i["Year"] == latest_year].copy()
+# ---------------- MULTI-YEAR DATA (FOR GRAPHS) ----------------
+df_i = df_i.copy()
+df_i["Crash_Probability"] = predict(model, build_features(df_i))
 
-latest["Crash_Probability"] = predict(
-    model,
-    build_features(latest)
+# ---------------- AGGREGATE RISK ACROSS YEARS ----------------
+risk_panel = (
+    df_i.groupby("Firm")
+    .agg({
+        "Crash_Probability": "mean",
+        "Hybrid_EM": "mean",
+        "PEG": "mean",
+        "Debt_Equity": "mean"
+    })
+    .reset_index()
+    .sort_values("Crash_Probability", ascending=False)
 )
 
-latest["Recommendation"] = latest["Crash_Probability"].apply(recommend)
+top10_panel = risk_panel.head(10)
 
-# ---------------- SORT & SELECT TOP 10 ----------------
-latest_sorted = latest.sort_values(
-    "Crash_Probability", ascending=False
-)
-
-top10 = latest_sorted.head(10)
-
-# ---------------- CHART 1: TOP 10 RANKING ----------------
-st.subheader("Top 10 Firms Most Likely to Crash First")
+# ---------------- CHART 1: TOP 10 (MULTI-YEAR) ----------------
+st.subheader("Top 10 Firms by Average Crash Risk (Panel Data)")
 
 st.plotly_chart(
     px.bar(
-        top10[::-1],
+        top10_panel[::-1],
         x="Crash_Probability",
         y="Firm",
         orientation="h",
-        title="Top 10 Crash Risk Ranking"
+        title="Average Crash Risk Across Years"
     ),
     use_container_width=True
 )
 
-# ---------------- CHART 2: FRAGILITY MAP (TOP 10) ----------------
-st.subheader("Fragility Map of Top 10 Firms")
+# ---------------- CHART 2: FRAGILITY MAP ----------------
+st.subheader("Fragility Map (Top 10 Firms)")
 
 st.plotly_chart(
     px.scatter(
-        top10,
+        top10_panel,
         x="Debt_Equity",
         y="Hybrid_EM",
         size="Crash_Probability",
         color="Crash_Probability",
-        title="Leverage vs Earnings Manipulation (Top 10)"
+        title="Leverage vs Earnings Manipulation"
     ),
     use_container_width=True
 )
 
-# ---------------- CHART 3: FULL DISTRIBUTION ----------------
-st.subheader("Crash Risk Distribution (All Firms in Industry)")
+# ---------------- CHART 3: RISK DISTRIBUTION ----------------
+st.subheader("Crash Risk Distribution (All Firms, All Years)")
 
 st.plotly_chart(
     px.histogram(
-        latest_sorted,
+        df_i,
         x="Crash_Probability",
-        nbins=15,
+        nbins=20,
         title="Distribution of Crash Risk"
     ),
     use_container_width=True
 )
 
-# ---------------- TABLE: TOP 10 ----------------
-st.subheader("Top 10 Firm Risk Table")
+# ---------------- LATEST YEAR ONLY (FINAL DECISION) ----------------
+latest_year = df_i["Year"].max()
+latest = df_i[df_i["Year"] == latest_year].copy()
+
+latest["Final_Crash_Probability"] = predict(
+    model,
+    build_features(latest)
+)
+
+latest = latest.sort_values(
+    "Final_Crash_Probability", ascending=False
+)
+
+latest["Recommendation"] = latest["Final_Crash_Probability"].apply(recommend)
+
+# ---------------- TABLE ----------------
+st.subheader("Latest Year Risk Table")
 
 st.dataframe(
-    top10[
+    latest[
         [
             "Firm",
-            "Crash_Probability",
+            "Final_Crash_Probability",
             "Hybrid_EM",
             "PEG",
             "Debt_Equity",
-            "Recommendation",
+            "Recommendation"
         ]
     ],
     use_container_width=True
 )
 
-# ---------------- CONCLUSION ----------------
-worst_firm = top10.iloc[0]["Firm"]
+# ---------------- FINAL CONCLUSION ----------------
+worst_firm = latest.iloc[0]["Firm"]
 
-st.subheader("Conclusion")
+st.subheader("Final Prediction")
 
 st.write(
-    "Based on current financial fragility indicators, "
-    "the firm most likely to fail first in this industry is:"
+    "Based on the most recent financial data, the firm most likely "
+    "to fail first in the event of a crash is:"
 )
 st.write(worst_firm)
 
-st.write(
-    "The remaining firms in the Top 10 also exhibit elevated "
-    "risk and should be closely monitored during market stress."
-)
 
 
