@@ -1,6 +1,6 @@
 import pandas as pd
 
-def load_data(path="data/large_panel_dataset.csv"):
-    df = pd.read_csv(path)
-    df["Year"] = df["Year"].astype(int)
-    return df
+def load_data(file=None):
+    if file:
+        return pd.read_csv(file)
+    return pd.read_csv("data/large_panel_dataset.csv")
