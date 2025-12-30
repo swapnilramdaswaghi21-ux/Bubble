@@ -43,8 +43,19 @@ st.plotly_chart(crash_probability_chart(df_latest), use_container_width=True)
 
 # ---------------- BACKTEST ----------------
 st.subheader("📉 Historical Crash Backtesting")
+
 bt = backtest_crashes(df_i, model, build_features)
-st.plotly_chart(backtest_performance(bt), use_container_width=True)
+
+fig = backtest_performance(bt)
+
+if fig is None:
+    st.info(
+        "Backtest results are unavailable or insufficient for visualization "
+        "for this industry."
+    )
+else:
+    st.plotly_chart(fig, use_container_width=True)
+
 
 # ---------------- PORTFOLIO STRESS ----------------
 st.subheader("💼 Portfolio Stress Test")
