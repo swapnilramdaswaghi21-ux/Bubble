@@ -15,6 +15,11 @@ df = pd.read_csv("data/example_panel_with_prices.csv")
 
 industry = st.selectbox("Select Industry", df["Industry"].unique())
 df_i = df[df["Industry"] == industry]
+if df_i["Year"].nunique() < 4:
+    st.warning(
+        "⚠️ Limited time-series depth. Crash backtesting confidence is low."
+    )
+
 
 # ---------------- TRAIN MODEL ----------------
 features = build_features(df_i)
