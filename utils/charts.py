@@ -10,14 +10,28 @@ def crash_probability_chart(df):
 
 import plotly.express as px
 
+import plotly.express as px
+
 def backtest_performance(df):
-    # SAFETY CHECKS (THIS FIXES YOUR ERROR)
+    # REQUIRED COLUMNS
     required_cols = {"Predicted_Prob", "Return"}
 
+    # SAFETY CHECKS
     if df is None or df.empty:
         return None
 
     if not required_cols.issubset(df.columns):
+        return None
+
+    # ENSURE NUMERIC
+    df = df.copy()
+    df["Predicted_Prob"] = df["Predicted_Prob"].astype(float)
+    df["Return"] = df["Return"].astype(float)
+
+    # REMOVE NaNs
+    df = df.dropna(subset=["Predicted_Prob", "Return"])
+
+    if df.empty:
         return None
 
     return px.scatter(
@@ -30,6 +44,7 @@ def backtest_performance(df):
             "Return": "Actual Return"
         }
     )
+
 
 
 
