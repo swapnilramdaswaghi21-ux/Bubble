@@ -1,14 +1,13 @@
 import streamlit as st
 
-st.set_page_config(
-    page_title="Market Fragility Intelligence",
-    layout="wide"
-)
+st.set_page_config(layout="wide")
+st.title("📉 Market Fragility & Crash Impact Platform")
 
-st.title("📉 Market Fragility & Crash Impact Intelligence")
-st.caption(
-    "An institutional-grade system identifying bubbles, "
-    "first-crash firms, and actionable risk recommendations."
-)
+st.markdown("""
+**What this platform does**
+- Detects industry bubbles  
+- Predicts which firms will crash first  
+- Provides institutional-grade recommendations  
+""")
 
 
