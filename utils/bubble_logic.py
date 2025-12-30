@@ -1,25 +1,37 @@
-def compute_panel_bubble(df, em_threshold, peg_threshold, min_share):
-    latest_year = df["Year"].max()
-    df_latest = df[df["Year"] == latest_year]
+from utils.risk_metrics import em_persistence, concentration_risk, disconnect_index
 
-    high_em_share = (df_latest["Hybrid_EM"] > em_threshold).mean()
-    high_peg_share = (df_latest["PEG"] > peg_threshold).mean()
-    avg_f = df_latest["F_Score"].mean()
+def compute_bubble_regime(df, em_th, peg_th):
+    latest = df[df["Year"] == df["Year"].max()]
 
-    bubble_score = int(
-        100 * (
-            0.4 * high_em_share +
-            0.3 * high_peg_share +
-            0.3 * ((9 - avg_f) / 9)
-        )
-    )
+    em_share = (latest["Hybrid_EM"] > em_th).mean()
+    peg_share = (latest["PEG"] > peg_th).mean()
+    avg_f = latest["F_Score"].mean()
 
-    if bubble_score >= 70 and high_em_share >= min_share:
-        verdict = "🔴 Bubble Detected"
-    elif bubble_score >= 45:
-        verdict = "🟠 Bubble Building"
+    persistence = em_persistence(df, em_th)
+    concentration = concentration_risk(df)
+    disconnect = disconnect_index(df)
+
+    score = int(100 * (
+        0.25 * em_share +
+        0.20 * peg_share +
+        0.20 * persistence +
+        0.20 * concentration +
+        0.15 * max(disconnect, 0)
+    ))
+
+    if score >= 75:
+        regime = "🔴 Fragile Bubble"
+    elif score >= 55:
+        regime = "🟠 Financial Stretch"
+    elif score >= 35:
+        regime = "🟡 Narrative Expansion"
     else:
-        verdict = "🟢 No Bubble"
+        regime = "🟢 Fundamental Growth"
 
-    return verdict, bubble_score
-
+    return regime, score, {
+        "EM Share": round(em_share*100,1),
+        "Persistence": round(persistence*100,1),
+        "Concentration": round(concentration,2),
+        "Disconnect": round(disconnect,2),
+        "Avg F-Score": round(avg_f,2)
+    }
